@@ -1,0 +1,19 @@
+{
+  "name": "Gần Nhau",
+  "short_name": "Gần Nhau",
+  "description": "Xem vị trí của nhau trong nhóm gia đình hoặc cặp đôi, theo thời gian thực.",
+  "lang": "vi",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F1F4F2",
+  "theme_color": "#0A6C5B",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "gan-nhau",
+  "version": "1.0.0",
+  "description": "Chia sẻ vị trí theo nhóm cho gia đình và cặp đôi, chạy trên trình duyệt điện thoại.",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/run.js && node test/util.test.js"
+  }
+}

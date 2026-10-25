@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Gần Nhau</title>
+  <meta name="description" content="Xem vị trí của nhau trong nhóm gia đình hoặc cặp đôi, theo thời gian thực.">
+  <meta name="theme-color" content="#F1F4F2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0C1411" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Gần Nhau">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/be-vietnam-pro-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/be-vietnam-pro-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="logo" viewBox="0 0 48 48">
+        <circle cx="17" cy="24" r="12" fill="currentColor"/>
+        <circle cx="31" cy="24" r="12" fill="#F2B53A"/>
+        <path d="M24 14.25A12 12 0 0 1 24 33.75A12 12 0 0 1 24 14.25z" fill="#FFFFFF"/>
+      </symbol>
+      <symbol id="pin" viewBox="0 0 24 32">
+        <path d="M12 0C5.4 0 0 5.2 0 11.7C0 20 12 32 12 32S24 20 24 11.7C24 5.2 18.6 0 12 0z" fill="#F2B53A"/>
+        <circle cx="12" cy="11.5" r="4.5" fill="#2B1D00"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main id="app">
+    <!-- Màn hình chào: tạo nhóm hoặc vào nhóm -->
+    <section id="welcome" class="screen welcome" hidden>
+      <div class="welcome-inner">
+        <div class="brand">
+          <svg class="logo" width="30" height="30" aria-hidden="true"><use href="#logo"/></svg>
+          <span>Gần Nhau</span>
+        </div>
+
+        <div class="hero">
+          <div class="rings" aria-hidden="true">
+            <svg class="hero-pin" width="30" height="40"><use href="#pin"/></svg>
+          </div>
+          <h1>Đến đâu rồi?</h1>
+          <p class="lead">Cả nhà thấy nhau trên cùng một bản đồ, ngay lúc này. Không cần tài khoản.</p>
+        </div>
+
+        <div id="inapp-warn" class="notice" hidden>
+          <b>Bạn đang mở trong một ứng dụng khác.</b>
+          Zalo, Messenger hay Facebook thường chặn định vị. Bấm dấu ba chấm rồi chọn “Mở bằng Safari” hoặc “Mở bằng Chrome”.
+        </div>
+
+        <form id="join-form" class="card" autocomplete="off" novalidate>
+          <p id="invite-note" class="invite-note" hidden>Bạn được mời vào nhóm <b id="invite-code"></b></p>
+
+          <label for="in-name">Tên hiển thị</label>
+          <input id="in-name" name="name" type="text" maxlength="20" placeholder="Ví dụ: Mẹ, Bố, Mai" autocomplete="given-name" autocapitalize="words" enterkeyhint="go">
+
+          <div id="code-row" class="field" hidden>
+            <label for="in-code">Mã nhóm</label>
+            <input id="in-code" name="code" type="text" maxlength="9" placeholder="ABCD-EFGH" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+          </div>
+
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+
+          <button id="btn-primary" type="submit" class="btn btn-primary">Tạo nhóm mới</button>
+          <button id="btn-toggle" type="button" class="btn btn-ghost">Đã có mã nhóm? Nhập mã</button>
+        </form>
+
+        <p class="fineprint">Vị trí chỉ được giữ tạm trong bộ nhớ máy chủ khi nhóm đang hoạt động và không lưu lịch sử. Mỗi người tự bật hoặc tắt chia sẻ trên máy của mình.</p>
+      </div>
+    </section>
+
+    <!-- Màn hình bản đồ -->
+    <section id="mapscreen" class="screen mapscreen" data-sheet="collapsed" hidden>
+      <div id="map" aria-label="Bản đồ vị trí cả nhóm"></div>
+
+      <header class="topbar">
+        <button id="chip-group" class="chip" type="button" aria-label="Mời người thân vào nhóm">
+          <svg class="logo" width="26" height="26" aria-hidden="true"><use href="#logo"/></svg>
+          <span class="chip-text"><small>Mã nhóm</small><b id="chip-code">----</b></span>
+        </button>
+        <button id="status-pill" class="status" type="button" data-state="idle">
+          <i class="dot" aria-hidden="true"></i><span id="status-text">Đang kết nối</span>
+        </button>
+        <button id="btn-menu" class="icon-btn" type="button" aria-label="Cài đặt"></button>
+      </header>
+
+      <div id="banners" class="banners" aria-live="polite"></div>
+
+      <div class="fabs">
+        <button id="fab-rally" class="fab" type="button" aria-label="Điểm hẹn"></button>
+        <button id="fab-all" class="fab" type="button" aria-label="Xem cả nhóm"></button>
+        <button id="fab-me" class="fab" type="button" aria-label="Về chỗ của tôi"></button>
+      </div>
+
+      <div id="sheet" class="sheet" data-state="collapsed">
+        <button id="sheet-handle" class="sheet-handle" type="button" aria-expanded="false" aria-controls="member-list" aria-label="Mở danh sách thành viên"><span></span></button>
+        <div class="sheet-head">
+          <div id="avatars" class="avatars" aria-hidden="true"></div>
+          <div class="sheet-title">
+            <strong id="sum-main">1 người trong nhóm</strong>
+            <span id="sum-sub">Đang chờ vị trí</span>
+          </div>
+          <button id="btn-invite" class="btn btn-small btn-primary" type="button">Mời</button>
+        </div>
+        <ul id="member-list" class="member-list"></ul>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="modal-root" class="modal-root"></div>
+  </main>
+
+  <noscript><p style="padding:24px;font-family:sans-serif">Gần Nhau cần bật JavaScript để hoạt động.</p></noscript>
+
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/util.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

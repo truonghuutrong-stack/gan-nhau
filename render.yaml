@@ -1,0 +1,11 @@
+# Dùng với Render: New > Blueprint > chọn kho mã GitHub chứa thư mục này.
+# (Hoặc tạo thủ công: New > Web Service, xem README.)
+services:
+  - type: web
+    name: gan-nhau
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
